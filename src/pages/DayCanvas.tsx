@@ -269,25 +269,26 @@ export default function DayCanvas() {
               </button>
             </div>
           )}
+{/* Writing Canvas */}
+<div className="bg-white/80 rounded-2xl p-6 shadow-lg border border-white/20">
+  <div
+    ref={editorRef}
+    contentEditable={isEditing}
+    onInput={handleContentChange}
+    suppressContentEditableWarning
+    data-placeholder="Write your thoughts here... Use formatting toolbar for structure."
+    className={`
+      w-full min-h-[400px]
+      font-sans-content text-base md:text-lg
+      focus:outline-none
+      ${!isEditing ? 'cursor-default' : 'cursor-text'}
+      [&:empty]:before:content-[attr(data-placeholder)]
+      [&:empty]:before:text-gray-400
+      [&:empty]:before:pointer-events-none
+    `}
+  />
+</div>
 
-          {/* Writing Canvas */}
-          <div className="bg-white/80 rounded-2xl p-6 shadow-lg border border-white/20">
-            <div
-              ref={editorRef}
-              contentEditable={isEditing}
-              onInput={handleContentChange}
-              suppressContentEditableWarning
-              className={`
-                w-full min-h-[400px] resize-none
-                font-sans-content text-base md:text-lg
-                focus:outline-none
-                ${!isEditing ? 'cursor-default' : 'cursor-text'}
-                [&:empty]:before:content-[attr(placeholder)]
-                [&:empty]:before:text-gray-400
-              `}
-              placeholder="Write your thoughts here... Use formatting toolbar for structure."
-            />
-          </div>
 
           {/* Action Buttons - Only Copy */}
           <div className="flex gap-3 justify-center">

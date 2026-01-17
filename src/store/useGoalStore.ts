@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { AppData, DayEntry, MonthName, TasksData, Task } from '../types';
 import { loadEntries, saveEntries, loadTasks, saveTasks } from '../utils/storage';
-import { formatDateKey, getTodayDateKey } from '../utils/calendar';
+import { getTodayDateKey } from '../utils/calendar';
 
 interface GoalStore {
   entries: AppData;
