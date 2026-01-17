@@ -9,8 +9,8 @@
 }
 
 body {
-  font-family: 'Caveat', 'Patrick Hand', 'Indie Flower', cursive;
-  background-color: #ffffff;
+  font-family: 'Inter', 'Roboto', system-ui, sans-serif;
+  background-color: #fefefe;
   color: #1a1a1a;
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
@@ -20,4 +20,14 @@ body {
 #root {
   min-height: 100vh;
   width: 100%;
+}
+
+/* Serif font for UI elements */
+.font-serif-ui {
+  font-family: 'Playfair Display', 'Libre Baskerville', 'Cormorant Garamond', serif;
+}
+
+/* Sans-serif for user content */
+.font-sans-content {
+  font-family: 'Inter', 'Roboto', system-ui, sans-serif;
 }

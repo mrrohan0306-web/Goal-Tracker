@@ -1,43 +1,27 @@
 import { MonthName, MONTHS } from '../types';
 
-/**
- * Get the number of days in a given month and year
- */
 export function getDaysInMonth(month: number, year: number): number {
   return new Date(year, month + 1, 0).getDate();
 }
 
-/**
- * Get the day of the week (0 = Sunday, 1 = Monday, etc.) for the first day of the month
- */
 export function getFirstDayOfMonth(month: number, year: number): number {
   return new Date(year, month, 1).getDay();
 }
 
-/**
- * Convert month name (JAN, FEB, etc.) to month index (0-11)
- */
 export function monthNameToIndex(monthName: MonthName): number {
   return MONTHS.indexOf(monthName);
 }
 
-/**
- * Convert month index (0-11) to month name (JAN, FEB, etc.)
- */
 export function indexToMonthName(index: number): MonthName {
   return MONTHS[index];
 }
 
-/**
- * Get calendar grid for a given month and year
- * Returns an array of arrays representing weeks, with null for empty cells
- */
 export function getCalendarGrid(monthName: MonthName, year: number = 2026): (number | null)[][] {
   const monthIndex = monthNameToIndex(monthName);
   const daysInMonth = getDaysInMonth(monthIndex, year);
   const firstDay = getFirstDayOfMonth(monthIndex, year);
   
-  // Convert Sunday (0) to be the last day of the week
+  // Convert Sunday (0) to be the last day of the week (Monday-first)
   const startDay = firstDay === 0 ? 6 : firstDay - 1;
   
   const grid: (number | null)[][] = [];
@@ -70,20 +54,14 @@ export function getCalendarGrid(monthName: MonthName, year: number = 2026): (num
   return grid;
 }
 
-/**
- * Check if a date has saved data
- */
-export function hasDataForDate(
-  monthName: MonthName,
-  date: number,
-  year: number = 2026,
-  data: any
-): boolean {
-  const yearData = data[year.toString()];
-  if (!yearData) return false;
-  
-  const monthData = yearData[monthName];
-  if (!monthData) return false;
-  
-  return !!monthData[date];
+export function formatDateKey(year: number, month: MonthName, date: number): string {
+  return `${year}-${month}-${date}`;
+}
+
+export function getTodayDateKey(): string {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = indexToMonthName(today.getMonth());
+  const date = today.getDate();
+  return formatDateKey(year, month, date);
 }

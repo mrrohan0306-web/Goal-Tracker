@@ -1,77 +1,103 @@
 import { create } from 'zustand';
-import { AppData, DayEntry, MonthName } from '../types';
+import { AppData, DayEntry, MonthName, TasksData, Task } from '../types';
+import { loadEntries, saveEntries, loadTasks, saveTasks } from '../utils/storage';
+import { formatDateKey, getTodayDateKey } from '../utils/calendar';
 
 interface GoalStore {
-  data: AppData;
-  saveEntry: (year: number, month: MonthName, date: number, entry: DayEntry) => void;
-  getEntry: (year: number, month: MonthName, date: number) => DayEntry | null;
-  hasMonthData: (year: number, month: MonthName) => boolean;
+  entries: AppData;
+  tasks: TasksData;
   loadData: () => void;
-}
-
-const STORAGE_KEY = 'goal-2026-data';
-
-// Load data from LocalStorage
-function loadFromStorage(): AppData {
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    return stored ? JSON.parse(stored) : {};
-  } catch {
-    return {};
-  }
-}
-
-// Save data to LocalStorage
-function saveToStorage(data: AppData): void {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-  } catch (error) {
-    console.error('Failed to save to localStorage:', error);
-  }
+  saveDayEntry: (year: number, month: MonthName, date: number, entry: DayEntry) => void;
+  getDayEntry: (year: number, month: MonthName, date: number) => DayEntry | null;
+  addTask: (task: Task) => void;
+  updateTask: (taskId: string, updates: Partial<Task>) => void;
+  deleteTask: (taskId: string) => void;
+  getTodayTasks: () => Task[];
 }
 
 export const useGoalStore = create<GoalStore>((set, get) => ({
-  data: loadFromStorage(),
+  entries: loadEntries(),
+  tasks: loadTasks(),
   
   loadData: () => {
-    set({ data: loadFromStorage() });
+    set({ entries: loadEntries(), tasks: loadTasks() });
   },
   
-  saveEntry: (year, month, date, entry) => {
+  saveDayEntry: (year, month, date, entry) => {
     set((state) => {
       const yearStr = year.toString();
-      const newData = { ...state.data };
+      const newEntries = { ...state.entries };
       
-      if (!newData[yearStr]) {
-        newData[yearStr] = {};
+      if (!newEntries[yearStr]) {
+        newEntries[yearStr] = {};
       }
       
-      if (!newData[yearStr][month]) {
-        newData[yearStr][month] = {};
+      if (!newEntries[yearStr][month]) {
+        newEntries[yearStr][month] = {};
       }
       
-      newData[yearStr][month] = {
-        ...newData[yearStr][month],
-        [date]: entry,
-      };
+      newEntries[yearStr][month][date.toString()] = entry;
+      saveEntries(newEntries);
       
-      // Persist to LocalStorage
-      saveToStorage(newData);
-      
-      return { data: newData };
+      return { entries: newEntries };
     });
   },
   
-  getEntry: (year, month, date) => {
+  getDayEntry: (year, month, date) => {
     const state = get();
     const yearStr = year.toString();
-    return state.data[yearStr]?.[month]?.[date] || null;
+    return state.entries[yearStr]?.[month]?.[date.toString()] || null;
   },
   
-  hasMonthData: (year, month) => {
+  addTask: (task) => {
+    set((state) => {
+      const dateKey = getTodayDateKey();
+      const newTasks = { ...state.tasks };
+      
+      if (!newTasks[dateKey]) {
+        newTasks[dateKey] = [];
+      }
+      
+      newTasks[dateKey] = [...newTasks[dateKey], task];
+      saveTasks(newTasks);
+      
+      return { tasks: newTasks };
+    });
+  },
+  
+  updateTask: (taskId, updates) => {
+    set((state) => {
+      const dateKey = getTodayDateKey();
+      const newTasks = { ...state.tasks };
+      
+      if (newTasks[dateKey]) {
+        newTasks[dateKey] = newTasks[dateKey].map(task =>
+          task.id === taskId ? { ...task, ...updates } : task
+        );
+        saveTasks(newTasks);
+      }
+      
+      return { tasks: newTasks };
+    });
+  },
+  
+  deleteTask: (taskId) => {
+    set((state) => {
+      const dateKey = getTodayDateKey();
+      const newTasks = { ...state.tasks };
+      
+      if (newTasks[dateKey]) {
+        newTasks[dateKey] = newTasks[dateKey].filter(task => task.id !== taskId);
+        saveTasks(newTasks);
+      }
+      
+      return { tasks: newTasks };
+    });
+  },
+  
+  getTodayTasks: () => {
     const state = get();
-    const yearStr = year.toString();
-    const monthData = state.data[yearStr]?.[month];
-    return monthData ? Object.keys(monthData).length > 0 : false;
+    const dateKey = getTodayDateKey();
+    return state.tasks[dateKey] || [];
   },
 }));

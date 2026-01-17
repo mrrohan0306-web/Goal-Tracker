@@ -1,14 +1,12 @@
-export type MoodStatus = 'BLUE' | 'GOLD' | 'GREY' | 'GREEN';
+export type MoodType = 'happy' | 'neutral' | 'sad' | 'very-sad' | 'angry';
 
 export interface DayEntry {
-  date: number;
-  goal: string;
-  achievement: string;
-  mood: MoodStatus;
+  mood?: MoodType;
+  text?: string;
 }
 
 export interface MonthData {
-  [date: number]: DayEntry;
+  [date: string]: DayEntry;
 }
 
 export interface YearData {
@@ -19,26 +17,36 @@ export interface AppData {
   [year: string]: YearData;
 }
 
-export type MonthName = 
-  | 'JAN' | 'FEB' | 'MAR' | 'APR' | 'MAY' | 'JUN'
-  | 'JUL' | 'AUG' | 'SEP' | 'OCT' | 'NOV' | 'DEC';
+export interface Task {
+  id: string;
+  text: string;
+  completed: boolean;
+  time?: string;
+  createdAt: number;
+}
 
-export const MONTHS: MonthName[] = [
-  'JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN',
-  'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'
-];
+export interface TasksData {
+  [date: string]: Task[];
+}
 
-export const MONTH_HOVER_COLORS: Record<MonthName, string> = {
-  JAN: 'hover:bg-month-jan',
-  FEB: 'hover:bg-month-feb',
-  MAR: 'hover:bg-month-mar',
-  APR: 'hover:bg-month-apr',
-  MAY: 'hover:bg-month-may',
-  JUN: 'hover:bg-month-jun',
-  JUL: 'hover:bg-month-jul',
-  AUG: 'hover:bg-month-aug',
-  SEP: 'hover:bg-month-sep',
-  OCT: 'hover:bg-month-oct',
-  NOV: 'hover:bg-month-nov',
-  DEC: 'hover:bg-month-dec',
+export const MONTHS = [
+  'january', 'february', 'march', 'april', 'may', 'june',
+  'july', 'august', 'september', 'october', 'november', 'december'
+] as const;
+
+export type MonthName = typeof MONTHS[number];
+
+export const MONTH_COLORS: Record<MonthName, string> = {
+  january: 'bg-month-jan border-month-jan',
+  february: 'bg-month-feb border-month-feb',
+  march: 'bg-month-mar border-month-mar',
+  april: 'bg-month-apr border-month-apr',
+  may: 'bg-month-may border-month-may',
+  june: 'bg-month-jun border-month-jun',
+  july: 'bg-month-jul border-month-jul',
+  august: 'bg-month-aug border-month-aug',
+  september: 'bg-month-sep border-month-sep',
+  october: 'bg-month-oct border-month-oct',
+  november: 'bg-month-nov border-month-nov',
+  december: 'bg-month-dec border-month-dec',
 };

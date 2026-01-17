@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Icon Generator</title>
+</head>
+<body>
+  <h1>Goalnote Icon Generator</h1>
+  <p>Open this file in a browser and use the canvas to generate icons.</p>
+  
+  <canvas id="icon192" width="192" height="192"></canvas>
+  <canvas id="icon512" width="512" height="512"></canvas>
+  
+  <script>
+    function drawIcon(canvas, size) {
+      const ctx = canvas.getContext('2d');
+      const center = size / 2;
+      
+      // Background
+      ctx.fillStyle = '#FFD700';
+      ctx.beginPath();
+      ctx.arc(center, center, size * 0.4, 0, Math.PI * 2);
+      ctx.fill();
+      
+      // Border
+      ctx.strokeStyle = '#FFA500';
+      ctx.lineWidth = size * 0.02;
+      ctx.stroke();
+      
+      // Eyes
+      ctx.strokeStyle = '#333';
+      ctx.lineWidth = size * 0.03;
+      ctx.beginPath();
+      ctx.arc(center - size * 0.15, center - size * 0.1, 0, 0, Math.PI * 2);
+      ctx.moveTo(center + size * 0.15, center - size * 0.1);
+      ctx.arc(center + size * 0.15, center - size * 0.1, 0, 0, Math.PI * 2);
+      ctx.stroke();
+      
+      // Smile
+      ctx.beginPath();
+      ctx.arc(center, center + size * 0.1, size * 0.15, 0, Math.PI);
+      ctx.stroke();
+    }
+    
+    const canvas192 = document.getElementById('icon192');
+    const canvas512 = document.getElementById('icon512');
+    
+    drawIcon(canvas192, 192);
+    drawIcon(canvas512, 512);
+    
+    // Download functions
+    function downloadCanvas(canvas, filename) {
+      canvas.toBlob((blob) => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        a.click();
+        URL.revokeObjectURL(url);
+      });
+    }
+    
+    // Add download buttons
+    const btn192 = document.createElement('button');
+    btn192.textContent = 'Download 192x192';
+    btn192.onclick = () => downloadCanvas(canvas192, 'icon-192.png');
+    document.body.appendChild(btn192);
+    
+    const btn512 = document.createElement('button');
+    btn512.textContent = 'Download 512x512';
+    btn512.onclick = () => downloadCanvas(canvas512, 'icon-512.png');
+    document.body.appendChild(btn512);
+  </script>
+</body>
+</html>
