@@ -3,6 +3,7 @@ export type MoodType = 'happy' | 'neutral' | 'sad' | 'very-sad' | 'angry';
 export interface DayEntry {
   mood?: MoodType;
   text?: string;
+  content?: string; // HTML content for rich text
 }
 
 export interface MonthData {

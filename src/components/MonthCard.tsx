@@ -35,7 +35,22 @@ export default function MonthCard({ month, year }: MonthCardProps) {
   const hasDataForDate = (date: number | null): boolean => {
     if (date === null) return false;
     const entry = getDayEntry(year, month, date);
-    return !!entry && (!!entry.mood || !!entry.text);
+    return !!entry && (!!entry.mood || !!entry.text || !!entry.content);
+  };
+
+  const getMoodForDate = (date: number | null): string | null => {
+    if (date === null) return null;
+    const entry = getDayEntry(year, month, date);
+    if (!entry?.mood) return null;
+    
+    const moodEmojis: Record<string, string> = {
+      happy: '😊',
+      neutral: '😐',
+      sad: '😢',
+      'very-sad': '😔',
+      angry: '😠',
+    };
+    return moodEmojis[entry.mood] || null;
   };
 
   return (
@@ -70,12 +85,13 @@ export default function MonthCard({ month, year }: MonthCardProps) {
         {calendarGrid.map((week, weekIdx) =>
           week.map((date, dayIdx) => {
             const hasData = hasDataForDate(date);
+            const moodEmoji = getMoodForDate(date);
             return (
               <button
                 key={`${weekIdx}-${dayIdx}`}
                 onClick={(e) => handleDateClick(date, e)}
                 className={`
-                  aspect-square rounded text-xs font-serif-ui
+                  aspect-square rounded text-xs font-serif-ui relative
                   transition-all duration-200
                   ${
                     date === null
@@ -87,6 +103,11 @@ export default function MonthCard({ month, year }: MonthCardProps) {
                 `}
               >
                 {date}
+                {moodEmoji && (
+                  <span className="absolute bottom-0 right-0 text-[8px] leading-none transform translate-x-[2px] translate-y-[2px]">
+                    {moodEmoji}
+                  </span>
+                )}
               </button>
             );
           })
