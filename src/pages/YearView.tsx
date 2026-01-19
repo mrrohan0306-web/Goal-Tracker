@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { MONTHS, MonthName } from '../types';
 import MonthCard from '../components/MonthCard';
@@ -8,6 +8,62 @@ import { downloadData } from '../utils/storage';
 export default function YearView() {
   const [showExportConfirm, setShowExportConfirm] = useState(false);
   const year = 2026;
+  const monthRefs = useRef<Record<MonthName, HTMLDivElement | null>>(
+    {} as Record<MonthName, HTMLDivElement | null>
+  );
+  const prefersReducedMotion = useMemo(
+    () => window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+    []
+  );
+
+  // Active month handling
+  const today = new Date();
+  const currentMonthName = MONTHS[today.getMonth()] as MonthName;
+  const [activeMonth, setActiveMonth] = useState<MonthName | null>(currentMonthName);
+
+  useEffect(() => {
+    // Auto-scroll to current month on load
+    const currentRef = monthRefs.current[currentMonthName];
+    if (currentRef) {
+      currentRef.scrollIntoView({
+        behavior: prefersReducedMotion ? 'auto' : 'smooth',
+        block: 'center',
+      });
+    }
+  }, [currentMonthName, prefersReducedMotion]);
+
+  useEffect(() => {
+    let ticking = false;
+
+    const handleScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      window.requestAnimationFrame(() => {
+        const centerY = window.innerHeight / 2;
+        let closest: { month: MonthName; distance: number } | null = null;
+
+        MONTHS.forEach((month) => {
+          const el = monthRefs.current[month as MonthName];
+          if (!el) return;
+          const rect = el.getBoundingClientRect();
+          const distance = Math.abs(rect.top + rect.height / 2 - centerY);
+          if (!closest || distance < closest.distance) {
+            closest = { month: month as MonthName, distance };
+          }
+        });
+
+        const nextActive = (closest as { month: MonthName } | null)?.month ?? null;
+        if (nextActive && nextActive !== activeMonth) {
+          setActiveMonth(nextActive);
+        }
+        ticking = false;
+      });
+    };
+
+    handleScroll(); // initialize on mount
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [activeMonth]);
 
   const handleExportClick = () => {
     setShowExportConfirm(true);
@@ -58,11 +114,18 @@ export default function YearView() {
           {MONTHS.map((month, index) => (
             <motion.div
               key={month}
+              ref={(el) => {
+                monthRefs.current[month as MonthName] = el;
+              }}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.05, duration: 0.4 }}
             >
-              <MonthCard month={month as MonthName} year={year} />
+              <MonthCard
+                month={month as MonthName}
+                year={year}
+                isActive={activeMonth === month}
+              />
             </motion.div>
           ))}
         </div>

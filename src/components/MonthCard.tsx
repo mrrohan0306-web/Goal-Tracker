@@ -7,9 +7,10 @@ import { useGoalStore } from '../store/useGoalStore';
 interface MonthCardProps {
   month: MonthName;
   year: number;
+  isActive?: boolean;
 }
 
-export default function MonthCard({ month, year }: MonthCardProps) {
+export default function MonthCard({ month, year, isActive = false }: MonthCardProps) {
   const navigate = useNavigate();
   const getDayEntry = useGoalStore((state) => state.getDayEntry);
   const calendarGrid = getCalendarGrid(month, year);
@@ -53,6 +54,11 @@ export default function MonthCard({ month, year }: MonthCardProps) {
     return moodEmojis[entry.mood] || null;
   };
 
+  // Today highlight helpers
+  const today = new Date();
+  const isTodayMonth = today.getFullYear() === year && MONTHS[today.getMonth()] === month;
+  const todayDate = today.getDate();
+
   return (
     <motion.div
       whileHover={{ scale: 1.02 }}
@@ -62,6 +68,7 @@ export default function MonthCard({ month, year }: MonthCardProps) {
         ${monthColors}
         border-2 rounded-xl p-4 shadow-md cursor-pointer
         transition-all duration-300
+        ${isActive ? 'scale-105 opacity-100 z-10' : 'scale-95 opacity-70'}
       `}
     >
       {/* Month name */}
@@ -86,6 +93,7 @@ export default function MonthCard({ month, year }: MonthCardProps) {
           week.map((date, dayIdx) => {
             const hasData = hasDataForDate(date);
             const moodEmoji = getMoodForDate(date);
+            const isToday = isTodayMonth && date === todayDate;
             return (
               <button
                 key={`${weekIdx}-${dayIdx}`}
@@ -100,6 +108,7 @@ export default function MonthCard({ month, year }: MonthCardProps) {
                       ? 'bg-blue-200 text-blue-800 font-semibold hover:bg-blue-300'
                       : 'bg-white/50 text-gray-700 hover:bg-white/80'
                   }
+                  ${isToday ? 'ring-2 ring-offset-1 ring-blue-400 ring-offset-white/70' : ''}
                 `}
               >
                 {date}
